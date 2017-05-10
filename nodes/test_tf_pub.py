@@ -17,18 +17,18 @@ class MakeGet():
           br = tf.TransformBroadcaster()
           rate = rospy.Rate(2.0)
           inirot = tf.transformations.quaternion_from_euler(0,0,0)
-          now = rospy.time(0)
+          now = rospy.Time(0)
           listener = tf.TransformListener()
           while True:
              try:
-               listener.waitForTransform("/world_vive", "/lighthouse2", now, rospy.Duration(1.0))
-            　　　(trans,rot) = listener.lookupTransform("/world_vive", "/lighthouse2", now)
+               listener.waitForTransform("/world_vive", "/lighthouse1", now, rospy.Duration(1.0))
+               (trans,rot) = listener.lookupTransform("/world_vive", "/lighthouse1", now)
                print "getting complete"
                break
              except (tf.LookupException, tf.ConnectivityException, tf.ExtrapokationException):
                continue
-　　　　　　　　　　while not rospy.is_shutdown():
-                br.sendTransform((trans[0],0.0,1.5),
+          while not rospy.is_shutdown():
+                br.sendTransform((trans[2]/2,-trans[2]/2,1.5),
                                   inirot,
                                   now,
                                   "purpose",
