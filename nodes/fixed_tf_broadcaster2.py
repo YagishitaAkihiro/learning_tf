@@ -1,4 +1,5 @@
-#!/usr/bin/env python  
+#!/usr/bin/env python
+#-*- coding:utf-8 -*-
 import roslib
 roslib.load_manifest('learning_tf')
 
@@ -15,6 +16,13 @@ if __name__ == '__main__':
          br.sendTransform((2.0 * math.sin(t), 2.0 * math.cos(t), 0.0),
                           (0.0, 0.0, 0.0, 1.0),
                           rospy.Time.now(),
-                          "carrot1",
-                          "turtle1")
-       rate.sleep()
+                          "target",
+                          "my_tf")
+         """
+         br.sendTransform((3.0, 0.0, 0.0),#xyz
+                          (0.0, 0.0, 0.0, 1.0),#orientation
+                          rospy.Time.now(),
+                          "make_tf",#作りたいTF
+                          "map")#元のTF
+         """
+         rate.sleep()

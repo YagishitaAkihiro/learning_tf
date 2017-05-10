@@ -1,36 +1,39 @@
-import tf2_ros
-import geometry_msgs.msg as geometry_msgs
+#!/usr/bin/env python  
+#-*- coding:utf-8 -*-
 
-def tf_set_up():
-    global tf_buffer, tf_listener, tf_broadcaster
-    tf_buffer = tf2_ros.Buffer()
-    tf_listener = tf2_ros.TransformListener(tf_buffer)
-    #tf_broadcaster = tf2_ros.StaticTransformBroadcaster()
-    import tf2_msgs.msg
-    tf_broadcaster = rospy.Publisher("/tf_static", tf2_msgs.msg.TFMessage , queue_size=1, latch=True)
+"""
+#import roslib
+#roslib.load_manifest('learning_tf')
+"""
+import rospy
+import tf
+import math
 
-def broadcast_static_tf(parent, child, translation, rotation):
-    static_tf = geometry_msgs.TransformStamped()
-    static_tf.header.stamp = rospy.Time.now()
-    static_tf.header.frame_id = parent
-    static_tf.child_frame_id = child
-    static_tf.transform.translation = translation
-    static_tf.transform.rotation = rotation
-    tf_broadcaster.publish([static_tf])
+class MakeGet():
+      def __init__(self):
+          rospy.init_node("make_gettingTF")
+          self.main()
+      def main(self):
+          br = tf.TransformBroadcaster()
+          rate = rospy.Rate(2.0)
+          inirot = tf.transformations.quaternion_from_euler(0,0,0)
+          now = rospy.time(0)
+          listener = tf.TransformListener()
+          while True:
+             try:
+               listener.waitForTransform("/world_vive", "/lighthouse2", now, rospy.Duration(1.0))
+            　　　(trans,rot) = listener.lookupTransform("/world_vive", "/lighthouse2", now)
+               print "getting complete"
+               break
+             except (tf.LookupException, tf.ConnectivityException, tf.ExtrapokationException):
+               continue
+　　　　　　　　　　while not rospy.is_shutdown():
+                br.sendTransform((trans[0],0.0,1.5),
+                                  inirot,
+                                  now,
+                                  "purpose",
+                                  "world")
+                rate.sleep()
 
-class Tf_publisher():
-  def __init__(self):
-        broadcast_static_tf('odom', 'initial_pose', pose[0], pose[1])
-
-        #TODO: determine with measurement
-        pose = geometry_msgs.PoseStamped()
-        pose.header.frame_id = BASE_FRAME
-        pose.header.stamp = rospy.Time.now()
-        pose.pose.position.x = DESIRED_DISTANCE
-        pose.pose.position.y = 0.0
-        pose.pose.orientation.w = 1.0
-        try:
-            pose = tf_buffer.transform(pose, MAP_FRAME, timeout=rospy.Duration(_TF_TIMEOUT))
-            broadcast_static_tf(MAP_FRAME, BOOKCASE_FRAME, pose.pose.position, pose.pose.orientation)
-        except:
-            rospy.logerr('Could not transform bookcase position.')
+if __name__ == '__main__':
+   MakeGet()
